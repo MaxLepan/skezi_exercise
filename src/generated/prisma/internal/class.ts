@@ -27,6 +27,7 @@ const config: runtime.GetPrismaClientConfig = {
       "fromEnvVar": null
     },
     "config": {
+      "moduleFormat": "cjs",
       "engineType": "library"
     },
     "binaryTargets": [
@@ -56,8 +57,8 @@ const config: runtime.GetPrismaClientConfig = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client\"\n  output   = \"../src/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel Room {\n  id           Int           @id @default(autoincrement())\n  name         String        @unique\n  maxCapacity  Int\n  createdAt    DateTime      @default(now())\n  updatedAt    DateTime      @updatedAt\n  reservations Reservation[]\n}\n\nmodel Reservation {\n  id        Int      @id @default(autoincrement())\n  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)\n  roomId    Int\n  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n  userId    Int\n  startAt   DateTime\n  endAt     DateTime\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@unique([roomId, startAt, endAt])\n}\n\nmodel User {\n  id           Int           @id @default(autoincrement())\n  email        String        @unique\n  firstName    String\n  lastName     String\n  passwordHash String\n  reservations Reservation[]\n  createdAt    DateTime      @default(now())\n  updatedAt    DateTime      @updatedAt\n}\n",
-  "inlineSchemaHash": "c52e76b1a72dac1b75ac7595144f2ebb1d551028302d7e852f45204e02c070d3",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider     = \"prisma-client\"\n  output       = \"../src/generated/prisma\"\n  moduleFormat = \"cjs\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel Room {\n  id           Int           @id @default(autoincrement())\n  name         String        @unique\n  maxCapacity  Int\n  createdAt    DateTime      @default(now())\n  updatedAt    DateTime      @updatedAt\n  reservations Reservation[]\n}\n\nmodel Reservation {\n  id        Int      @id @default(autoincrement())\n  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)\n  roomId    Int\n  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n  userId    Int\n  startAt   DateTime\n  endAt     DateTime\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@unique([roomId, startAt, endAt])\n}\n\nmodel User {\n  id           Int           @id @default(autoincrement())\n  email        String        @unique\n  firstName    String\n  lastName     String\n  passwordHash String\n  reservations Reservation[]\n  createdAt    DateTime      @default(now())\n  updatedAt    DateTime      @updatedAt\n}\n",
+  "inlineSchemaHash": "567ee31af50030d155de681a973a7ba19d6ec907de5029a71a7ce65a8d5d4aee",
   "copyEngine": true,
   "runtimeDataModel": {
     "models": {},
