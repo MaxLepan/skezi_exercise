@@ -1,4 +1,6 @@
-# Skezi exercise
+# Skezi Exercise
+
+## Description
 
 This is an exercise for Skezi, during the interview process. The goal is to create an API to manage meeting rooms and their reservations.
 
@@ -30,3 +32,35 @@ This is an exercise for Skezi, during the interview process. The goal is to crea
 
 - Necessary unit tests
 - At least one integration test AND/OR end-to-end test
+
+## Project setup
+
+```bash
+$ npm install
+```
+
+## Compile and run the project
+
+```bash
+# development
+$ npm run start
+
+# watch mode
+$ npm run start:dev
+
+# production mode
+$ npm run start:prod
+```
+
+## Run tests
+
+```bash
+# unit tests
+$ npm run test
+
+# e2e tests
+$ npm run test:e2e
+
+# test coverage
+$ npm run test:cov
+```
