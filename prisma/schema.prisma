@@ -6,11 +6,44 @@
 
 generator client {
   provider = "prisma-client"
-  output   = "../generated/prisma"
-  moduleFormat = "cjs
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model Room {
+  id           Int           @id @default(autoincrement())
+  name         String        @unique
+  maxCapacity  Int
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  reservations Reservation[]
+}
+
+model Reservation {
+  id        Int      @id @default(autoincrement())
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  roomId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  startAt   DateTime
+  endAt     DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([roomId, startAt, endAt])
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  email        String        @unique
+  firstName    String
+  lastName     String
+  passwordHash String
+  reservations Reservation[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 }
