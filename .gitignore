@@ -57,3 +57,4 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # PDF file containing the instructions
 Exercice_Technique_SKEZI_Tech.pdf
+/generated/prisma
