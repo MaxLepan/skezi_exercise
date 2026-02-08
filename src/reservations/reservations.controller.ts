@@ -33,4 +33,9 @@ export class ReservationsController {
     async cancel(@Param('id', ParseIntPipe) id: number, @Req() req: AuthedRequest) {
         await this.reservationsService.cancel(id, req.user.userId);
     }
+
+    @Post(":id")
+    async modify(@Param('id', ParseIntPipe) id: number, @Req() req: AuthedRequest, @Body() dto: { startAt?: Date; endAt?: Date }) {
+        await this.reservationsService.modify(id, req.user.userId, dto);
+    }
 }
