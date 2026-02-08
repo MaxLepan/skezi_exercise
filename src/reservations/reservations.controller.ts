@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Post, Query, Req, UseGuards } from "@nestjs/common";
 import { ReservationsService } from "./reservations.service";
 import { CreateReservationDto } from "./dto/create-reservation.dto";
 import { Reservation } from "src/generated/prisma/client";
@@ -26,5 +26,11 @@ export class ReservationsController {
     @Get("me")
     async findMyReservations(@Req() req: AuthedRequest, @Query() q: getUserIdReservationsDto): Promise<Reservation[]> {
         return this.reservationsService.findByUserId(req.user.userId, q.from, q.to);
+    }
+
+    @Delete(":id")
+    @HttpCode(204)
+    async cancel(@Param('id', ParseIntPipe) id: number, @Req() req: AuthedRequest) {
+        await this.reservationsService.cancel(id, req.user.userId);
     }
 }

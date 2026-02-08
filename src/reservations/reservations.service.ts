@@ -82,4 +82,18 @@ export class ReservationsService {
             orderBy: { startAt: "asc" },
         })
     }
+
+    async cancel(id: number, userId: number) {
+        const reservation = await this.prisma.reservation.findUnique({ where: { id } });
+
+        if (!reservation) {
+            throw new NotFoundException(`Reservation with ID ${id} not found.`);
+        }
+        if (reservation.userId !== userId) {
+            throw new BadRequestException("You can only cancel your own reservations.");
+        }
+
+        await this.prisma.reservation.delete({ where: { id } });
+    }
+
 }
