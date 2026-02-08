@@ -66,4 +66,20 @@ export class ReservationsService {
         }
         return reservation;
     }
+
+    async findByUserId(userId: number, from?: Date, to?: Date): Promise<Reservation[]> {
+        return this.prisma.reservation.findMany({
+            where: {
+                userId,
+                ...(from || to
+                    ? {
+                        startAt: { gte: from },
+                        endAt: { lte: to },
+                    }
+                    : {}
+                ),
+            },
+            orderBy: { startAt: "asc" },
+        })
+    }
 }
