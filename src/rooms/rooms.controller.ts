@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Param, Post, ParseIntPipe } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, ParseIntPipe, Query } from "@nestjs/common";
 import { Room } from "src/generated/prisma/client";
 import { RoomsService } from "./rooms.service";
 import { CreateRoomDto } from "./dto/create-room.dto";
+import { AvailabilityQueryDto } from "./dto/availibility-query.dto";
 
 @Controller("rooms")
 export class RoomsController {
@@ -25,4 +26,11 @@ export class RoomsController {
         return this.roomsService.findOne(id);
     }
 
+    @Get(":id/availability")
+    async checkAvailability(
+        @Param("id", ParseIntPipe) id: number,
+        @Query() q: AvailabilityQueryDto
+    ): Promise<{ available: boolean }> {
+        return this.roomsService.isAvailable(id, q.startAt, q.endAt);
+    }
 }
