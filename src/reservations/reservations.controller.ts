@@ -1,17 +1,18 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Post, Query, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post, Query, Req, UseGuards } from "@nestjs/common";
 import { ReservationsService } from "./reservations.service";
 import { CreateReservationDto } from "./dto/create-reservation.dto";
 import { Reservation } from "src/generated/prisma/client";
 import { Request } from "express";
 import { JwtAuthGuard } from "src/auth/jwt-auth.guard";
 import { getUserIdReservationsDto } from "./dto/get-userid-reservations.dto";
+import { UpdateReservationDto } from "./dto/update-reservation.dto";
 
 type AuthedRequest = Request & { user: { userId: number; email: string } };
 
 @UseGuards(JwtAuthGuard)
 @Controller("reservations")
 export class ReservationsController {
-    constructor(private readonly reservationsService: ReservationsService) {}
+    constructor(private readonly reservationsService: ReservationsService) { }
 
     @Post()
     async create(@Body() dto: CreateReservationDto, @Req() req: AuthedRequest): Promise<Reservation> {
@@ -34,8 +35,15 @@ export class ReservationsController {
         await this.reservationsService.cancel(id, req.user.userId);
     }
 
-    @Post(":id")
-    async modify(@Param('id', ParseIntPipe) id: number, @Req() req: AuthedRequest, @Body() dto: { startAt?: Date; endAt?: Date }) {
-        await this.reservationsService.modify(id, req.user.userId, dto);
+    @Patch(':id')
+    async modify(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() dto: UpdateReservationDto,
+        @Req() req: AuthedRequest,
+    ) {
+        return this.reservationsService.modify(id, req.user.userId, {
+            startAt: dto.startAt,
+            endAt: dto.endAt,
+        });
     }
 }
