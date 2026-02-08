@@ -4,7 +4,7 @@ import { Room, Prisma } from "../generated/prisma/client";
 
 @Injectable()
 export class RoomsService {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(private readonly prisma: PrismaService) { }
 
     async create(data: Prisma.RoomCreateInput): Promise<Room> {
         try {
@@ -29,5 +29,18 @@ export class RoomsService {
             throw new NotFoundException(`Room with ID ${id} not found.`);
         }
         return room;
+    }
+
+    async isAvailable(roomId: number, startAt: Date, endAt: Date): Promise<{ available: boolean }> {
+        const overlap = await this.prisma.reservation.findFirst({
+            where: {
+                roomId,
+                startAt: { lt: endAt },
+                endAt: { gt: startAt },
+
+            },
+            select: { id: true },
+        });
+        return { available: !overlap };
     }
 }
