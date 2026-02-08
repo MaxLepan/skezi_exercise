@@ -3,7 +3,7 @@ import { ReservationsService } from "./reservations.service";
 import { CreateReservationDto } from "./dto/create-reservation.dto";
 import { Reservation } from "src/generated/prisma/client";
 import { Request } from "express";
-import { JwtAuthGuard } from "src/auth/jwt-auth.guard";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { getUserIdReservationsDto } from "./dto/get-userid-reservations.dto";
 import { UpdateReservationDto } from "./dto/update-reservation.dto";
 
