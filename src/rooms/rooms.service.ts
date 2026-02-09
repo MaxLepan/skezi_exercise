@@ -43,4 +43,21 @@ export class RoomsService {
         });
         return { available: !overlap };
     }
+
+    async reservationsForRoom(roomId: number, from?: Date, to?: Date) {
+        return this.prisma.reservation.findMany({
+            where: {
+                roomId,
+                ...(from && to
+                    ? { startAt: { lt: to }, endAt: { gt: from } }
+                    : from
+                        ? { endAt: { gt: from } }
+                        : to
+                            ? { startAt: { lt: to } }
+                            : {}),
+            },
+            orderBy: { startAt: 'asc' },
+        });
+    }
+
 }

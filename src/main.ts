@@ -1,6 +1,5 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { PrismaService } from './prisma/prisma.service';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
@@ -13,6 +12,8 @@ async function bootstrap() {
       transform: true,
     })
   )
+
+  app.enableCors();
 
   await app.listen(process.env.PORT ?? 3000);
 }

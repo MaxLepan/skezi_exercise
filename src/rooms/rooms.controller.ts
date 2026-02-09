@@ -3,10 +3,11 @@ import { Room } from "src/generated/prisma/client";
 import { RoomsService } from "./rooms.service";
 import { CreateRoomDto } from "./dto/create-room.dto";
 import { AvailabilityQueryDto } from "./dto/availibility-query.dto";
+import { RoomReservationsQueryDto } from "./dto/rooms-reservations-query.dto";
 
 @Controller("rooms")
 export class RoomsController {
-    constructor(private readonly roomsService: RoomsService) {}
+    constructor(private readonly roomsService: RoomsService) { }
 
     @Post()
     async create(@Body() dto: CreateRoomDto): Promise<Room> {
@@ -32,5 +33,13 @@ export class RoomsController {
         @Query() q: AvailabilityQueryDto
     ): Promise<{ available: boolean }> {
         return this.roomsService.isAvailable(id, q.startAt, q.endAt);
+    }
+
+    @Get(":id/reservations")
+    async reservationsForRoom(
+        @Param('id', ParseIntPipe) id: number,
+        @Query() q: RoomReservationsQueryDto,
+    ) {
+        return this.roomsService.reservationsForRoom(id, q.from, q.to);
     }
 }
