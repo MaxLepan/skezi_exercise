@@ -18,6 +18,7 @@ const login = async () => {
     router.push('/dashboard')
   } catch (e) {
     alert('Login failed')
+    console.error(e)
   }
 }
 </script>
