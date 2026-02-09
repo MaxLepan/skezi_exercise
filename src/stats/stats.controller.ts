@@ -3,7 +3,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { StatsService } from './stats.service';
 import { StatsRangeQueryDto } from './dto/stats-range-query.dto';
 
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('stats')
 export class StatsController {
   constructor(private readonly stats: StatsService) {}
