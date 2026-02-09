@@ -33,34 +33,60 @@ This is an exercise for Skezi, during the interview process. The goal is to crea
 - Necessary unit tests
 - At least one integration test AND/OR end-to-end test
 
-## Project setup
+## Project setup & quick start
+
+### Start PostgreSQL with Docker
 
 ```bash
-$ npm install
+docker compose up -d
+```
+
+> Make sure PostgreSQL is running on port `5432`
+
+### Configure environment variables
+
+Create a `.env` file in the root of the project with the following content (or see the `.env.example` file and adjust the values as needed):
+
+```env
+DATABASE_URL="postgresql://postgres:password@localhost:5432/skezi?schema=public"
+JWT_SECRET=dev-secret
+```
+
+### Install and run the project
+
+```bash
+# install dependencies
+npm install
+
+# generate Prisma client
+npx prisma generate
+
+# run database migrations
+npx prisma migrate dev
+
+# seed the database
+npm run db:seed
+
+# start the server
+npm run start:dev
 ```
 
 ## Compile and run the project
 
 ```bash
 # development
-$ npm run start
+npm run start
 
 # watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm run start:dev
 ```
 
 ## Run tests
 
 ```bash
 # unit tests
-$ npm run test
+npm run test
 
 # e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm run test:e2e
 ```
