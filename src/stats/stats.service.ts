@@ -35,49 +35,59 @@ export class StatsService {
         >(Prisma.sql`
             WITH buckets AS (
             SELECT
-                gs AS bucket_start,
-                gs + ${step} AS bucket_end
+                bucket_start,
+                bucket_start + ${step} AS bucket_end
             FROM generate_series(
                 ${from}::timestamptz,
                 (${to}::timestamptz - ${step}),
                 ${step}
-            ) AS gs
-            ),
-            overlaps AS (
+            ) AS bucket_start
+            )
             SELECT
-                b.bucket_start,
-                b.bucket_end,
-                r.id AS room_id,
-                r.name AS room_name,
+            b.bucket_start,
+            b.bucket_end,
+            r.id AS room_id,
+            r.name AS room_name,
+            COALESCE(
+                SUM(
                 GREATEST(
-                0,
-                EXTRACT(EPOCH FROM (
+                    0,
+                    EXTRACT(EPOCH FROM (
                     LEAST(res."endAt", b.bucket_end) - GREATEST(res."startAt", b.bucket_start)
-                ))
-                ) AS overlap_seconds
+                    ))
+                )
+                ),
+                0
+            )::float8 AS reserved_seconds,
+            EXTRACT(EPOCH FROM (b.bucket_end - b.bucket_start))::float8 AS bucket_seconds,
+            CASE
+                WHEN EXTRACT(EPOCH FROM (b.bucket_end - b.bucket_start)) = 0 THEN 0
+                ELSE (
+                COALESCE(
+                    SUM(
+                    GREATEST(
+                        0,
+                        EXTRACT(EPOCH FROM (
+                        LEAST(res."endAt", b.bucket_end) - GREATEST(res."startAt", b.bucket_start)
+                        ))
+                    )
+                    ),
+                    0
+                )
+                / EXTRACT(EPOCH FROM (b.bucket_end - b.bucket_start))
+                )
+            END AS occupancy_rate
             FROM buckets b
             CROSS JOIN "Room" r
             LEFT JOIN "Reservation" res
-                ON res."roomId" = r.id
-                AND res."startAt" < b.bucket_end
-                AND res."endAt" > b.bucket_start
-            )
-            SELECT
-            bucket_start,
-            bucket_end,
-            room_id,
-            room_name,
-            COALESCE(SUM(overlap_seconds), 0)::float8 AS reserved_seconds,
-            EXTRACT(EPOCH FROM (bucket_end - bucket_start))::float8 AS bucket_seconds,
-            CASE
-                WHEN EXTRACT(EPOCH FROM (bucket_end - bucket_start)) = 0 THEN 0
-                ELSE (COALESCE(SUM(overlap_seconds), 0) / EXTRACT(EPOCH FROM (bucket_end - bucket_start)))
-            END AS occupancy_rate
-            FROM overlaps
-            GROUP BY bucket_start, bucket_end, room_id, room_name
-            ORDER BY bucket_start ASC, room_name ASC
+            ON res."roomId" = r.id
+            AND res."startAt" < b.bucket_end
+            AND res."endAt" > b.bucket_start
+            GROUP BY b.bucket_start, b.bucket_end, r.id, r.name
+            ORDER BY b.bucket_start ASC, r.name ASC
         `);
     }
+
 
 
     async topRooms(period: Period, from: Date, to: Date, limit = 3) {
