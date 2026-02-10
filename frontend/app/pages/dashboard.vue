@@ -86,6 +86,8 @@ onMounted(load)
             </li>
           </ul>
         </section>
+
+        <RoomSchedule :rooms="rooms" />
       </div>
     </div>
   </div>
