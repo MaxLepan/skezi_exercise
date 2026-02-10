@@ -5,6 +5,7 @@ type Reservation = { id: number; roomId: number; startAt: string; endAt: string 
 const rooms = ref<Room[]>([])
 const myReservations = ref<Reservation[]>([])
 const loading = ref(true)
+const editingReservation = ref<Reservation | null>(null)
 
 const load = async () => {
   loading.value = true
@@ -14,6 +15,18 @@ const load = async () => {
   } finally {
     loading.value = false
   }
+}
+
+const onEdit = (res: Reservation) => {
+  editingReservation.value = res
+}
+
+const onCancelEdit = () => {
+  editingReservation.value = null
+}
+
+const onCreatedOrUpdated = async () => {
+  await load()
 }
 
 onMounted(load)
@@ -43,19 +56,25 @@ onMounted(load)
           </ul>
         </section>
 
+        <ReservationForm
+          :rooms="rooms"
+          :editing-reservation="editingReservation"
+          @created="onCreatedOrUpdated"
+          @updated="onCreatedOrUpdated"
+          @cancelEdit="onCancelEdit"
+        />
+
         <section class="bg-white p-4 rounded shadow">
           <h2 class="font-semibold mb-3">My reservations</h2>
-          <ul v-if="myReservations.length" class="space-y-2">
-            <li v-for="res in myReservations" :key="res.id" class="border rounded p-2">
-              <div class="flex justify-between">
-                <div class="font-medium">Reservation #{{ res.id }} (room {{ res.roomId }})</div>
+          <ul class="space-y-2">
+            <li v-for="res in myReservations" :key="res.id" class="border rounded p-2 flex justify-between">
+              <div>
+                <div class="font-medium">#{{ res.id }} — Room {{ res.roomId }}</div>
+                <div class="text-sm text-gray-600">{{ res.startAt }} → {{ res.endAt }}</div>
               </div>
-              <div class="text-sm text-gray-600">
-                {{ res.startAt }} → {{ res.endAt }}
-              </div>
+              <button class="text-sm underline" @click="onEdit(res)">Edit</button>
             </li>
           </ul>
-          <div v-else class="text-gray-500 text-sm">No reservations yet.</div>
         </section>
       </div>
     </div>
