@@ -110,6 +110,8 @@ After running the seed, the following users are available:
 
 ## Run tests
 
+Note: Tests use a dedicated Prisma schema (`schema.test.prisma`) to work around a [known NestJS + Prisma TypeScript issue](https://github.com/nestjs/nest/issues/16051).
+
 ```bash
 # unit tests
 npm run test
