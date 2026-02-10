@@ -18,7 +18,11 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "db:seed": "npx prisma db seed"
+    "db:seed": "npx prisma db seed",
+    "dev": "concurrently \"npm run start:dev\" \"npm run dev --prefix frontend\"",
+    "dev:backend": "npm run start:dev",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "prisma:generate:test": "prisma generate --schema=prisma/schema.test.prisma"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -50,6 +54,7 @@
     "@types/passport-jwt": "^4.0.1",
     "@types/pg": "^8.16.0",
     "@types/supertest": "^6.0.2",
+    "concurrently": "^9.2.1",
     "dotenv": "^17.2.4",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
@@ -83,6 +88,10 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^\\.\\./generated/prisma/client$": "<rootDir>/generated/prisma-test/client",
+      "^src/generated/prisma/client$": "<rootDir>/generated/prisma-test/client"
+    }
   }
 }
