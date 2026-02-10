@@ -15,78 +15,89 @@ export class StatsService {
     constructor(private readonly prisma: PrismaService) { }
 
     async roomsOccupancy(period: 'day' | 'week' | 'month', from: Date, to: Date) {
-        const step =
-            period === 'day'
-                ? Prisma.sql`interval '1 day'`
-                : period === 'week'
-                    ? Prisma.sql`interval '1 week'`
-                    : Prisma.sql`interval '1 month'`;
+  const step =
+    period === 'day'
+      ? Prisma.sql`interval '1 day'`
+      : period === 'week'
+        ? Prisma.sql`interval '1 week'`
+        : Prisma.sql`interval '1 month'`;
 
-        return this.prisma.$queryRaw<
-            Array<{
-                bucket_start: Date;
-                bucket_end: Date;
-                room_id: number;
-                room_name: string;
-                reserved_seconds: number;
-                bucket_seconds: number;
-                occupancy_rate: number;
-            }>
-        >(Prisma.sql`
-            WITH buckets AS (
-            SELECT
-                bucket_start,
-                bucket_start + ${step} AS bucket_end
-            FROM generate_series(
-                ${from}::timestamptz,
-                (${to}::timestamptz - ${step}),
-                ${step}
-            ) AS bucket_start
+  return this.prisma.$queryRaw<
+    Array<{
+      bucket_start: Date;
+      bucket_end: Date;
+      room_id: number;
+      room_name: string;
+      reserved_seconds: number;
+      bucket_seconds: number;
+      occupancy_rate: number;
+    }>
+  >(Prisma.sql`
+    WITH buckets AS (
+      SELECT
+        bucket_start,
+        bucket_start + ${step} AS bucket_end
+      FROM generate_series(
+        ${from}::timestamptz,
+        (${to}::timestamptz - ${step}),
+        ${step}
+      ) AS bucket_start
+    )
+    SELECT
+      b.bucket_start,
+      b.bucket_end,
+      r.id AS room_id,
+      r.name AS room_name,
+
+      COALESCE(
+        SUM(
+          CASE
+            WHEN res.id IS NULL THEN 0
+            ELSE GREATEST(
+              0,
+              EXTRACT(EPOCH FROM (
+                LEAST(res."endAt", b.bucket_end) - GREATEST(res."startAt", b.bucket_start)
+              ))
             )
-            SELECT
-            b.bucket_start,
-            b.bucket_end,
-            r.id AS room_id,
-            r.name AS room_name,
-            COALESCE(
-                SUM(
-                GREATEST(
-                    0,
-                    EXTRACT(EPOCH FROM (
+          END
+        ),
+        0
+      )::float8 AS reserved_seconds,
+
+      EXTRACT(EPOCH FROM (b.bucket_end - b.bucket_start))::float8 AS bucket_seconds,
+
+      CASE
+        WHEN EXTRACT(EPOCH FROM (b.bucket_end - b.bucket_start)) = 0 THEN 0
+        ELSE (
+          COALESCE(
+            SUM(
+              CASE
+                WHEN res.id IS NULL THEN 0
+                ELSE GREATEST(
+                  0,
+                  EXTRACT(EPOCH FROM (
                     LEAST(res."endAt", b.bucket_end) - GREATEST(res."startAt", b.bucket_start)
-                    ))
+                  ))
                 )
-                ),
-                0
-            )::float8 AS reserved_seconds,
-            EXTRACT(EPOCH FROM (b.bucket_end - b.bucket_start))::float8 AS bucket_seconds,
-            CASE
-                WHEN EXTRACT(EPOCH FROM (b.bucket_end - b.bucket_start)) = 0 THEN 0
-                ELSE (
-                COALESCE(
-                    SUM(
-                    GREATEST(
-                        0,
-                        EXTRACT(EPOCH FROM (
-                        LEAST(res."endAt", b.bucket_end) - GREATEST(res."startAt", b.bucket_start)
-                        ))
-                    )
-                    ),
-                    0
-                )
-                / EXTRACT(EPOCH FROM (b.bucket_end - b.bucket_start))
-                )
-            END AS occupancy_rate
-            FROM buckets b
-            CROSS JOIN "Room" r
-            LEFT JOIN "Reservation" res
-            ON res."roomId" = r.id
-            AND res."startAt" < b.bucket_end
-            AND res."endAt" > b.bucket_start
-            GROUP BY b.bucket_start, b.bucket_end, r.id, r.name
-            ORDER BY b.bucket_start ASC, r.name ASC
-        `);
-    }
+              END
+            ),
+            0
+          )
+          / EXTRACT(EPOCH FROM (b.bucket_end - b.bucket_start))
+        )
+      END AS occupancy_rate
+
+    FROM buckets b
+    CROSS JOIN "Room" r
+    LEFT JOIN "Reservation" res
+      ON res."roomId" = r.id
+      AND res."startAt" < b.bucket_end
+      AND res."endAt" > b.bucket_start
+
+    GROUP BY b.bucket_start, b.bucket_end, r.id, r.name
+    ORDER BY b.bucket_start ASC, r.name ASC
+  `);
+}
 
 
 

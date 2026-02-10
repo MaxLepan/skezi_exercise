@@ -18,5 +18,5 @@ export default defineNuxtConfig({
     '/stats': { appMiddleware: ['auth'] },
   },
 
-  modules: ['@nuxtjs/tailwindcss']
+  modules: ['@nuxtjs/tailwindcss', 'nuxt-charts']
 })

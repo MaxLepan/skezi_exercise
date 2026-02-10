@@ -7,11 +7,11 @@ const props = defineProps<{
 }>()
 
 const selectedRoomId = ref<number | null>(props.rooms[0]?.id ?? null)
-const day = ref<string>(() => {
+const day = ref<string>((() => {
   const d = new Date()
   const pad = (n: number) => String(n).padStart(2, '0')
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
-}) as Ref<string>
+})()) as Ref<string>
 
 const roomReservations = ref<Reservation[]>([])
 const loading = ref(false)

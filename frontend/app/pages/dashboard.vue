@@ -38,6 +38,11 @@ const onCreatedOrUpdated = async () => {
   await load()
 }
 
+function fmt(iso: string) {
+  const d = new Date(iso)
+  return d.toLocaleString()
+}
+
 onMounted(load)
 </script>
 
@@ -46,7 +51,10 @@ onMounted(load)
     <div class="max-w-5xl mx-auto p-6 space-y-6">
       <div class="flex items-center justify-between">
         <h1 class="text-2xl font-bold">Dashboard</h1>
-        <button class="text-sm underline" @click="load">Refresh</button>
+        <div class="space-x-4">
+          <NuxtLink to="/stats" class="text-sm underline">View stats</NuxtLink>
+          <button class="text-sm underline" @click="load">Refresh</button>
+        </div>
       </div>
 
       <div v-if="loading">Loading...</div>
@@ -79,7 +87,7 @@ onMounted(load)
             <li v-for="res in myReservations" :key="res.id" class="border rounded p-2 flex justify-between">
               <div>
                 <div class="font-medium">#{{ res.id }} — {{rooms.find(r => r.id === res.roomId)?.name }}</div>
-                <div class="text-sm text-gray-600">{{ res.startAt }} → {{ res.endAt }}</div>
+                <div class="text-sm text-gray-600">{{ fmt(res.startAt) }} → {{ fmt(res.endAt) }}</div>
               </div>
               <button class="text-sm underline" @click="onEdit(res)">Edit</button>
               <button class="text-sm underline text-red-600" @click="onDelete(res)">Delete</button>
