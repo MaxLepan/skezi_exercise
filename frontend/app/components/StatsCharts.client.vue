@@ -72,12 +72,22 @@ const topRoomsXFormatter = (tick: number) => String(topRoomsData.value[tick]?.ro
 
 // --- Chart 3: Avg duration line
 const avgDurationData = computed(() => {
-  const rows = [...props.avgDuration].sort((a, b) => new Date(a.bucket_start).getTime() - new Date(b.bucket_start).getTime())
+  const rows = [...props.avgDuration].sort(
+    (a, b) => new Date(a.bucket_start).getTime() - new Date(b.bucket_start).getTime()
+  )
+
   return rows.map(r => ({
     date: new Date(r.bucket_start).toLocaleDateString(),
-    avg: r.avg_minutes ?? 0,
+    avg: r.avg_minutes == null ? 0 : Number(r.avg_minutes), // ✅ force number
   }))
 })
+
+const avgDurationMax = computed(() => {
+  const max = Math.max(...avgDurationData.value.map(d => d.avg))
+  // arrondi “propre” pour l’axe (ex: 103 -> 110)
+  return Math.max(10, Math.ceil(max / 10) * 10)
+})
+
 
 const avgDurationCategories = {
   avg: { name: 'Avg duration (min)', color: '#f59e0b' },
@@ -142,6 +152,7 @@ const avgDurationXFormatter = (tick: number) => String(avgDurationData.value[tic
         :x-num-ticks="4"
         :y-num-ticks="4"
         :y-grid-line="true"
+        :y-max="avgDurationMax"
       />
     </section>
   </div>

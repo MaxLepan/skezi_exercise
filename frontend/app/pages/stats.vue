@@ -48,7 +48,10 @@ const { data, pending, error, refresh } = await useAsyncData('stats', fetchAll, 
     <div class="max-w-5xl mx-auto p-6 space-y-6">
       <div class="flex items-center justify-between">
         <h1 class="text-2xl font-bold">Stats</h1>
-        <button class="text-sm underline" @click="() => refresh()">Refresh</button>
+        <div class="space-x-4">
+          <NuxtLink to="/dashboard" class="text-sm underline">Back to dashboard</NuxtLink>
+          <button class="text-sm underline" @click="() => refresh()">Refresh</button>
+        </div>
       </div>
 
       <!-- Filtres globaux -->
