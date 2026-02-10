@@ -25,6 +25,15 @@ const onCancelEdit = () => {
   editingReservation.value = null
 }
 
+const onDelete = async (res: Reservation) => {
+  if (!confirm('Are you sure you want to delete this reservation?')) {
+    return
+  }
+
+  await useApiFetch(`/reservations/${res.id}`, { method: 'DELETE' })
+  await load()
+}
+
 const onCreatedOrUpdated = async () => {
   await load()
 }
@@ -69,10 +78,11 @@ onMounted(load)
           <ul class="space-y-2">
             <li v-for="res in myReservations" :key="res.id" class="border rounded p-2 flex justify-between">
               <div>
-                <div class="font-medium">#{{ res.id }} — Room {{ res.roomId }}</div>
+                <div class="font-medium">#{{ res.id }} — {{rooms.find(r => r.id === res.roomId)?.name }}</div>
                 <div class="text-sm text-gray-600">{{ res.startAt }} → {{ res.endAt }}</div>
               </div>
               <button class="text-sm underline" @click="onEdit(res)">Edit</button>
+              <button class="text-sm underline text-red-600" @click="onDelete(res)">Delete</button>
             </li>
           </ul>
         </section>
