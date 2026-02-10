@@ -6,9 +6,7 @@ import { AppModule } from '../src/app.module';
 describe('Reservations (e2e)', () => {
   let app: INestApplication;
 
-  beforeAll(async () => {
-    console.log('DATABASE_URL:', process.env.DATABASE_URL);
-    
+  beforeAll(async () => {    
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
