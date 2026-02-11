@@ -53,7 +53,6 @@ Create a `.env` file in the root of the project with the following content (or s
 
 ```env
 DATABASE_URL="postgresql://postgres:password@localhost:5432/skezi?schema=public"
-JWT_SECRET=dev-secret
 ```
 
 #### Install and run the project
